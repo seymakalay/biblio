@@ -27,8 +27,10 @@ ui <-  navbarPage("Benvenuto",
                                             h4("Country scientidic production and collaboration."),
                                              h3("Words"),
                                             h4("Most used words."),
-                                            h3("Cluster"),
-                                            h3("Cluster analysis."),
+                                            h3("Thematic Map"),
+                                            h4("Centrality: importance of the theme in the research field."),
+                                            h4("Density: measure of the theme's development."),
+                                           # h3("Cluster analysis."),
                                              h3("Network analysis."),
 
                            #https://rstudio.com/about/logos/
@@ -113,6 +115,8 @@ ui <-  navbarPage("Benvenuto",
                                    #h6("Here accept single .txt/.bib/.csv/.xslx/.RData files, or multiple .txt/.bib/.csv files compressed in a single .zip archive."),
                                    conditionalPanel(condition = "input.load != 'null'",
                                                     actionButton("applyLoad", "Start Convension")),
+                                  
+                                  h6(paste("Note: Click start convension after the data is uploaded.")),
                                    tags$hr(),
                                    
                                    uiOutput("textLog"),
@@ -160,7 +164,7 @@ ui <-  navbarPage("Benvenuto",
                                                tabPanel("Filter", icon = icon("table"),
                                                         sidebarLayout(
                                                           sidebarPanel(width=2,
-                                                                       h3(em(strong("Filter "))),
+                                                                       h3(em(strong("Filter"))),
                                                                        br(),
                                                                        uiOutput("textDim"),
                                                                        uiOutput("selectType"),
@@ -286,7 +290,7 @@ ui <-  navbarPage("Benvenuto",
                            
                            h4(em(strong("Most Relevant Affiliations"))),
                            
-                           selectInput("disAff", 
+                           selectInput("disAff",     #result of results$Affiliations
                                        label = "Affiliation Name",
                                        choices = c("Yes"="Y", 
                                                    "No"="N"),
@@ -525,8 +529,16 @@ ui <-  navbarPage("Benvenuto",
                              tabsetPanel( type ="tabs",   
                                            
                                           tabPanel("Map1",
-                                                   shinycssloaders::withSpinner(plotlyOutput(outputId = "countryProdPlot", height = 700)),
-                                                   shinycssloaders::withSpinner(DT::DTOutput("countryProdTable"))),
+
+                                                
+                                                mainPanel(   tabsetPanel(type = "tabs",
+                                                                         tabPanel("Graph", 
+                                                                                  shinycssloaders::withSpinner(plotlyOutput(outputId = "countryProdPlot", height = 900))),
+                                                                         tabPanel("Table", 
+                                                                                  shinycssloaders::withSpinner(DT::DTOutput("countryProdTable")))))),
+                                                  
+                                                   #shinycssloaders::withSpinner(plotlyOutput(outputId = "countryProdPlot", height = 700)),
+                                                   #shinycssloaders::withSpinner(DT::DTOutput("countryProdTable"))),
                                                    
                                         
                                           tabPanel("Map2",
@@ -539,7 +551,7 @@ ui <-  navbarPage("Benvenuto",
 
                                                                   numericInput("WMedges.min", 
                                                                                label=("Min edges"),
-                                                                               value = 2,
+                                                                               value = 1,
                                                                                step = 1),
                                                                 
                                                                   h4(em(strong("Graphical Parameters: "))),
@@ -554,7 +566,7 @@ ui <-  navbarPage("Benvenuto",
                                                        mainPanel(
                                                        tabsetPanel(type = "tabs",
                                                                    tabPanel("Graph", 
-                                                                            shinycssloaders::withSpinner(plotOutput(outputId = "WMPlot",height = 700))),
+                                                                            shinycssloaders::withSpinner(plotOutput(outputId = "WMPlot",height = 900))),
                                                                    tabPanel("Table", 
                                                                             shinycssloaders::withSpinner(DT::DTOutput(
                                                                               outputId = "WMTable")))
@@ -680,11 +692,11 @@ ui <-  navbarPage("Benvenuto",
                                                   
                            
                   
-                  tabPanel("Cluster", icon = icon("layer-group"),
+                  tabPanel("Thematic Map", icon = icon("layer-group"),
                            
                            sidebarLayout(
-                             sidebarPanel(width=3,
-                                          h4(em(strong("Cluster"))),
+                             sidebarPanel(width=2,
+                                          h4(em(strong("Theme"))),
                                           br(),
                                           
                                           actionButton("applyTM", "Apply!"),
@@ -783,7 +795,7 @@ ui <-  navbarPage("Benvenuto",
                                           sliderInput(inputId = "colNodes",
                                                       label = "Number of Nodes",
                                                       min = 5,
-                                                      max = 1000,
+                                                      max = 1000, step = 1,
                                                       value = 50),
                                           
                                           selectInput(inputId ="col.isolates",
@@ -794,7 +806,7 @@ ui <-  navbarPage("Benvenuto",
                                           
                                           numericInput("coledges.min", 
                                                        label=("Min edges"),
-                                                       value = 2,
+                                                       value = 1,
                                                        step = 1),
                                           
                                           h4(em(strong("Graphical Parameters: "))),
@@ -806,12 +818,12 @@ ui <-  navbarPage("Benvenuto",
                                                       value = 0.7,
                                                       step=0.05),
                                           
-                                          sliderInput(inputId = "min.citation",
-                                                      label = "Min Citation",
-                                                      min = 0,
-                                                      max = 300,
-                                                      value = 5, 
-                                                      step = 1),
+                                          #sliderInput(inputId = "min.citation",
+                                          #            label = "Min Citation",
+                                          #            min = 0,
+                                          #            max = 300,
+                                          #            value = 5, 
+                                          #            step = 1),
                                           
                                           sliderInput(inputId = "colLabels",
                                                       label = "Number of labels",
@@ -937,7 +949,7 @@ ui <-  navbarPage("Benvenuto",
                                           
                                           numericInput("citedges.min", 
                                                        label=("Min edges"),
-                                                       value = 2,
+                                                       value = 1,
                                                        step = 1),
                                           "  ",
                                           "  ",
@@ -1088,7 +1100,7 @@ ui <-  navbarPage("Benvenuto",
                                          
                                          numericInput("edges.min", 
                                                       label=("Min edges"),
-                                                      value = 2,
+                                                      value = 1,
                                                       step = 1,
                                                       min = 0),
                                          #uiOutput("Focus"),

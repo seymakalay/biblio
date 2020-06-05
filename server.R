@@ -283,11 +283,11 @@ server <- function(input, output, session) {
   
   output$selectType <- renderUI({
     
-    artType=sort(unique(values$Morig$DT))
+    artType=sort(unique(values$Morig$DT)) #artType=sort(unique(values$Morig$DT))
     selectInput("selectType", "Document Type", 
                 choices = artType,
                 selected = artType,
-                multiple =TRUE )
+                multiple = TRUE )
   })
   
   output$sliderPY <- renderUI({
@@ -1137,7 +1137,7 @@ server <- function(input, output, session) {
                                  lengthMenu = list(c(10,25,50,-1),c('10 rows', '25 rows', '50 rows','Show all')),
                                  columnDefs = list(list(className = 'dt-center', targets = 0:(length(names(TAB))-1)))), 
                   class = 'cell-border compact stripe') %>%
-      formatStyle(names(TAB),  backgroundColor = 'white',textAlign = 'center', fontSize = '110%') %>%
+      formatStyle(names(TAB),  backgroundColor = 'white',textAlign = 'center', fontSize = '100%') %>%
       formatRound(names(TAB)[dim(TAB)[2]], 3)
     
   })
@@ -1165,7 +1165,7 @@ server <- function(input, output, session) {
                                  lengthMenu = list(c(10,25,50,-1),c('10 rows', '25 rows', '50 rows','Show all')),
                                  columnDefs = list(list(className = 'dt-center', targets = 0:(length(names(TAB))-1)))), 
                   class = 'cell-border compact stripe') %>%
-      formatStyle(names(TAB),  backgroundColor = 'white',textAlign = 'center', fontSize = '110%') %>%
+      formatStyle(names(TAB),  backgroundColor = 'white',textAlign = 'center', fontSize = '100%') %>%
       formatRound(names(TAB)[dim(TAB)[2]], 3)
     
   })
@@ -1247,12 +1247,12 @@ server <- function(input, output, session) {
     } else {k=input$MostRelAffiliationsK}
     
     xx=xx[1:k,]
-    g=ggplot2::ggplot(data=xx, aes(x=xx$AFF, y=xx$Freq, fill=-xx$Freq, text=paste("Affiliation: ",xx$AFF,"\nN.of Documents: ",xx$Freq))) +
+    g=ggplot2::ggplot(data=xx, aes(x=xx$AFF, y=xx$Freq, fill=-xx$Freq, text=paste("Affiliation: ",xx$AFF,"\nN. of Author in the Affiliation: ",xx$Freq))) +
       geom_bar(aes(group="NA"),stat="identity")+
       scale_fill_continuous(type = "gradient")+
       scale_x_discrete(limits = rev(xx$AFF))+
-      labs(title="Most Relevant Affiliations", x = "Affiliations")+
-      labs(y = "N. of Documents")+
+      labs(title="Most Relevant Affiliations: Frequency distribution of affiliations (of all co-authors for each document)", x = "Affiliations")+
+      labs(y = "N. of Author in the Affiliation")+
       theme_minimal() +
       guides(fill=FALSE)+
       coord_flip()
@@ -2670,7 +2670,7 @@ server <- function(input, output, session) {
     
     isolate(values$network<-igraph2vis(g=values$colnet$graph,curved=(input$soc.curved=="Yes"), 
                                        labelsize=input$collabelsize, opacity=input$colAlpha,type=input$collayout,
-                                       shape=input$col.shape))
+                                       shape=input$col.shape, color = "blue"))
     
     isolate(values$network$VIS)
     
@@ -2909,8 +2909,8 @@ server <- function(input, output, session) {
     
     switch(type,
            "tab1"={
-             TAB=data.frame(Information=gsub("[[:digit:]]", "", S$MainInformation), Data=gsub("[^0-9]", "", S$MainInformation)) #this is better
-            # TAB=data.frame(values$S$MainInformationDF)
+             #TAB=data.frame(Information=gsub("[[:digit:]]", "", S$MainInformation), Data=gsub("[^0-9]", "", S$MainInformation)) #this is better
+             TAB=data.frame(values$S$MainInformationDF)
             # cat(S$MainInformation)
            },
 
@@ -3028,16 +3028,18 @@ server <- function(input, output, session) {
     names(breaks)=breaks
     breaks=log(breaks)
     
-    g=ggplot(country.prod, aes( x = long, y = lat, group=group, text=paste("Country: ",country.prod$region,"\nN.of Documents: ",country.prod$Freq))) +
-      geom_polygon(aes(fill = log(Freq), group=group)) +
+    
+    g= ggplot(country.prod, aes( x = long, y = lat, group=group, text=paste("Country: ",country.prod$region,"\nN.of Documents: ",country.prod$Freq))) +
+      geom_polygon(aes(fill = log(Freq), group=group) )+#, col = "white") +
+     
       scale_fill_continuous(low='dodgerblue', high='dodgerblue4',breaks=breaks)+
       guides(fill = guide_legend(reverse = T)) +
       #geom_text(data=centroids, aes(label = centroids$Tab, x = centroids$long, y = centroids$lat, group=centroids$Tab)) +
       labs(fill = 'N.Documents'
-           ,title = 'Country Scientific Production'
+           ,title = 'Country Scientific Colobration'
            ,x = NULL
            ,y = NULL) +
-      theme(text = element_text(color = '#333333')
+      theme(text = element_text(color = '#333333') #'#333333'
             ,plot.title = element_text(size = 28)
             ,plot.subtitle = element_text(size = 14)
             ,axis.ticks = element_blank()
