@@ -3,8 +3,8 @@ rm(list=ls())
 library(devtools); library( dplyr ); library(stringr); library(tidyr);library(plyr)
 library(RTextTools); library(data.table);library(xtable);library(ggrepel)
 library(bibliometrix); library(ggplot2);library(kableExtra)
-library(devtools);library(kableExtra)
-#biblioshiny()
+library(devtools);library(kableExtra) 
+#biblioshiny() 
 
 M <- convert2df("savedrecs.370.txt", dbsource = "wos", format = "plaintext") 
 M <-  M[!is.na(M$PY), ] #REMOVE WHEN PUBLISH YEAR IS NA (PY=NA) TO CONSIDER ONLY PUBLISH PAPER
