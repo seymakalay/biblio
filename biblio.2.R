@@ -15,7 +15,12 @@ colnames(M) <- c(names(M))
 colnames(M)[1] <- "Paper"
 names(M)
 
-write.csv(M, file = "M.csv")
+#write.csv(M, file = "M.csv") # Change the political connections with political connection
+M <- read.csv(file = "M.csv",  sep = ",", header = T, stringsAsFactors = FALSE) #add delete the first nrow column
+
+
+
+
 results <- biblioAnalysis(M, sep = ";")  #plot(x = results, k = 10, pause = FALSE)
 
 attributes(results)
@@ -96,8 +101,11 @@ mrk <- S$MostRelKeywords; mrk
 #make a table of most productive countriEs
 mpc$Freq <- as.numeric(mpc$Freq)
 mpc$SCP  <- as.numeric(mpc$SCP)
+mpc$MCP  <- as.numeric(mpc$MCP)
+
 mpc$SCP_Ratio <- mpc$SCP/sum(mpc$SCP)
-mpc$MCP_Ratio <- as.numeric(mpc$MCP_Ratio)     
+#mpc$MCP_Ratio <- as.numeric(mpc$MCP_Ratio)  
+mpc$MCP_Ratio <- mpc$MCP/sum(mpc$MCP)
 mpc <- mpc[,c(1,2,4,5,3,6,7)]; mpc
 
 ###############################################################################
@@ -120,13 +128,15 @@ mst.ctd.CO$AAC <- as.numeric(mst.ctd.CO$AAC)
 
 #
 mst.ctd.CO <- mst.ctd.CO[order(-mst.ctd.CO$Articles),]; mst.ctd.CO
-colnames(mst.ctd.CO) <- c( "Country","Articles","SCP","MCP","%Freq","%MCP","%SCP","TGC", "TGC/t"  ) #AAC STANDS FOR AVERAGE ARTICLE CITATATION
+mst.ctd.CO <- mst.ctd.CO[,c(1,2,5,3,7,4,6,8,9)]; mst.ctd.CO
+
+colnames(mst.ctd.CO) <- c( "Country","Articles","%Freq","SCP","%SCP", "MCP","%MCP","TGC","TGC/t") #AAC STANDS FOR AVERAGE ARTICLE CITATATION
 #
 rownames(mst.ctd.CO) <- NULL ; mst.ctd.CO #TO REMOVE THE ROW NUMBERS
 
 mst.ctd.CO$Country <- str_to_title(mst.ctd.CO$Country)
 
-mst.ctd.CO   <- xtable(mst.ctd.CO[c(1:10),],   digits = 2, 
+mst.ctd.CO   <- xtable(mst.ctd.CO[c(1:10),],   digits = 3, 
                        caption = 'Most Influancial Countries', label = "tab:Most-Cited-Countries", scalebox='0.80')
 
 print(mst.ctd.CO, #file = 'mst.ctd.CO.tex',  
@@ -187,8 +197,8 @@ mst.ctd.JOR <- lclcttion.M.savedrecs %>%
   dplyr::arrange(desc(sum.GCS.t))
 
 head(mst.ctd.JOR); names(mst.ctd.JOR)
-mst.ctd.JOR <- mst.ctd.JOR[, c("SO","Affiliation.Paper","sum.LCS","sum.GCS","sum.LCS.t","sum.GCS.t")]
-colnames(mst.ctd.JOR) <-     c("Journal","# of Papers", "TLC",        "TGC", "TLC/t", "TGC/t" )
+mst.ctd.JOR <- mst.ctd.JOR[, c("SO","Affiliation.Paper","sum.LCS","sum.LCS.t", "sum.GCS","sum.GCS.t")];head(mst.ctd.JOR)
+colnames(mst.ctd.JOR) <-     c("Journal","Article", "TLC","TLC/t", "TGC", "TGC/t" )
 
 #rownames(mst.ctd.JOR ) <- NULL
 
@@ -217,7 +227,9 @@ mst.ctd.AFF <- lclcttion.M.savedrecs  %>%
 
 mst.ctd.AFF <- na.omit(mst.ctd.AFF); mst.ctd.AFF
 
-colnames(mst.ctd.AFF) <- c("Affiliation", "# of Papers", "TGC", "TLC","TLC/t", "TGC/t")
+mst.ctd.AFF <- mst.ctd.AFF[,c(1,2,4,5,3,6)]; mst.ctd.AFF
+
+colnames(mst.ctd.AFF) <- c("Affiliation", "Articles","TLC","TLC/t","TGC", "TGC/t")
 
 rownames(mst.ctd.AFF) <- NULL
 mst.ctd.AFF$Affiliation <- str_to_title(mst.ctd.AFF$Affiliation)
@@ -370,8 +382,8 @@ ggsave(#path = "foldername",
 my.ntwrk  <- function(M, anlys, ntwrk, ttle){  
   NetMatrix <- biblioNetwork(M, analysis = anlys, network = ntwrk, sep = ";", shortlabel = TRUE)
   # Plot the network
-  networkPlot(NetMatrix,  n = 30, Title = ttle, alpha = 0.5,
-  normalize = "association", type="kamada" , cluster= "optimal", label.color =T,
+  networkPlot(NetMatrix,  n = 10, Title = ttle, alpha = 0.5,
+  normalize = "association", type="kamada" , cluster= "leading_eigen", label.color =T,
   size=10, size.cex=T, remove.multiple = FALSE, labelsize = 0.95,label.cex=F)
               
   }
@@ -381,30 +393,19 @@ my.ntwrk(M,"co-citation","references","")
 #authors’ collaboration network
 my.ntwrk(M, "coupling", "authors","")
 #keyword co-occurrences network
-my.ntwrk(M, "co-occurrences", "keywords","")
+my.ntwrk(M, "co-occurrences", "author_keywords","") #author_keywords, keywords
+
+my.ntwrk(M, "co-occurrences", "keywords","") # n=40 2c
 
 
 
+##########################
+##########################
+##########################
 
+my.ntwrk(M, "co-occurrences", "authors","")
+my.ntwrk(M, "coupling", "authors","")
 
-
-
-
-
-
-
-
-###
-M1 <- metaTagExtraction(M, Field = "AU_CO", sep = ";")
-NetMatrix <- biblioNetwork(M1, analysis = "collaboration", network = "countries", sep = ";")
-networkPlot(NetMatrix, n = 30, Title = "Country Collaboration", 
-            type = "fruchterman", size=T, remove.multiple=FALSE, labelsize=0.7,edgesize = 5)
-
-
-
-
-
-
-
+A <- cocMatrix(M, Field = "CR", sep = ";", binary = TRUE)
 
 
